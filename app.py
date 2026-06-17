@@ -15,7 +15,7 @@ st.title("📊 Aviva GCL Insurance Premium Calculator")
 
 st.markdown(
     "Select Age and Tenure to fetch the applicable rate. "
-    "Sum Assured is fixed at **₹50,000**."
+    "Sum Assured is fixed at **₹50,000** (HomeLoan) ."
 )
 
 # ============================================
