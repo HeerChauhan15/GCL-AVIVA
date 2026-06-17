@@ -29,6 +29,17 @@ st.markdown(
 RATE_FILE = "Homeloan.xlsx"   # your actual file name
 
 # ============================================
+# SHEET DROPDOWN (auto-detect)
+# ============================================
+
+try:
+    sheet_names = pd.ExcelFile(RATE_FILE).sheet_names
+    loan_type = st.selectbox("Select Loan Type (Sheet)", sheet_names)
+except Exception as e:
+    st.error(f"Error reading file: {e}")
+    st.stop()
+
+# ============================================
 # INPUTS
 # ============================================
 
@@ -55,13 +66,10 @@ if st.button("Get Rate"):
 
     try:
         # ============================================
-        # READ SHEET
+        # READ SELECTED SHEET
         # ============================================
 
-        df = pd.read_excel(
-            RATE_FILE,
-            sheet_name="Home Loan"   # must match sheet tab name
-        )
+        df = pd.read_excel(RATE_FILE, sheet_name=loan_type)
 
         # ============================================
         # CLEAN DATA
@@ -87,7 +95,7 @@ if st.button("Get Rate"):
         else:
             row = df[df[age_column] == age]
 
-            # Try to match tenure column flexibly
+            # Flexible tenure column detection
             tenure_column = next(
                 (col for col in df.columns if str(tenure) in str(col)),
                 None
