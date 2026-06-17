@@ -26,7 +26,7 @@ st.markdown(
 # FILE PATH
 # ============================================
 
-RATE_FILE = "Aviva Rate Card.xlsx"   # single file with Home Loan sheet
+RATE_FILE = "Homeloan.xlsx"   # single file with Home Loan sheet
 
 # ============================================
 # INPUTS
