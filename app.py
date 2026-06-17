@@ -13,23 +13,17 @@ st.set_page_config(
 
 st.title("📊 Aviva GCL Insurance Premium Calculator")
 
+st.markdown(
+    "Select Age and Tenure to fetch the applicable rate. "
+    "Sum Assured is fixed at **₹50,000**."
+)
+
 # ============================================
 # FILE PATH
 # ============================================
 
 RATE_FILE = "Homeloan.xlsx"   # your actual file name
-
-# ============================================
-# LIFE TYPE & LOAN TYPE DROPDOWNS
-# ============================================
-
-life_type = st.selectbox("Select Life Type", ["Single Life", "Joint Life"])
-try:
-    sheet_names = pd.ExcelFile(RATE_FILE).sheet_names
-    loan_type = st.selectbox("Select Loan Type (Sheet)", sheet_names)
-except Exception as e:
-    st.error(f"Error reading file: {e}")
-    st.stop()
+SHEET_NAME = "Home Loan"      # your only sheet
 
 # ============================================
 # MANUAL RATE LOOKUP
@@ -42,7 +36,7 @@ tenure = st.number_input("Tenure (in Years)", min_value=2, step=1)
 
 if st.button("Get Rates"):
     try:
-        df = pd.read_excel(RATE_FILE, sheet_name=loan_type)
+        df = pd.read_excel(RATE_FILE, sheet_name=SHEET_NAME)
         df.columns = [str(col).strip() for col in df.columns]
         age_column = df.columns[0]
         df[age_column] = pd.to_numeric(df[age_column], errors="coerce").astype("Int64")
@@ -68,13 +62,12 @@ if st.button("Get Rates"):
 
 st.header("📂 Upload Member Data for Bulk Rate Lookup")
 st.markdown("Your Excel must have at least: **Name, Age, Tenure** (tenure in months will be auto‑converted to years).")
-st.markdown("⚠️ Please make sure you have selected **Life Type** and **Loan Type** above before uploading your Excel file.")
 
 uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
 if uploaded_file is not None:
     try:
-        df_rates = pd.read_excel(RATE_FILE, sheet_name=loan_type)
+        df_rates = pd.read_excel(RATE_FILE, sheet_name=SHEET_NAME)
         df_rates.columns = [str(col).strip() for col in df_rates.columns]
         age_column = df_rates.columns[0]
         df_rates[age_column] = pd.to_numeric(df_rates[age_column], errors="coerce").astype("Int64")
@@ -104,6 +97,13 @@ if uploaded_file is not None:
         df_results = pd.DataFrame(results, columns=["Name", "Age", "Tenure (Years)", "Rate", "Premium"])
         st.success("Bulk Rates Calculated Successfully")
         st.dataframe(df_results)
+
+    except Exception as e:
+        st.error(f"Error: {e}")
+
+
+
+
 
     except Exception as e:
         st.error(f"Error: {e}")
