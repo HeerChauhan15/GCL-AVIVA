@@ -26,7 +26,7 @@ st.markdown(
 # FILE PATH
 # ============================================
 
-RATE_FILE = "Homeloan.xlsx"   # single file with Home Loan sheet
+RATE_FILE = "Homeloan.xlsx"   # your actual file name
 
 # ============================================
 # INPUTS
@@ -55,12 +55,12 @@ if st.button("Get Rate"):
 
     try:
         # ============================================
-        # READ SHEET (only Home Loan for now)
+        # READ SHEET
         # ============================================
 
         df = pd.read_excel(
             RATE_FILE,
-            sheet_name="Home Loan"
+            sheet_name="Home Loan"   # must match sheet tab name
         )
 
         # ============================================
@@ -75,7 +75,7 @@ if st.button("Get Rate"):
         df[age_column] = pd.to_numeric(
             df[age_column],
             errors="coerce"
-        )
+        ).astype("Int64")
 
         # ============================================
         # AGE VALIDATION
@@ -86,22 +86,30 @@ if st.button("Get Rate"):
 
         else:
             row = df[df[age_column] == age]
-            tenure_column = str(tenure)
+
+            # Try to match tenure column flexibly
+            tenure_column = next(
+                (col for col in df.columns if str(tenure) in str(col)),
+                None
+            )
 
             # ============================================
             # TENURE VALIDATION
             # ============================================
 
-            if tenure_column not in df.columns:
+            if tenure_column is None:
                 st.error("Age/Tenure not available in rate card.")
             else:
                 rate = row.iloc[0][tenure_column]
 
+                # Round to 4 decimal places
+                rate = round(rate, 4)
+
                 st.success("Rate Found Successfully")
 
                 st.metric(
-                    label="Applicable Rate (Sum Assured ₹50,000)",
-                    value=f"{rate}"
+                    label=f"Applicable Rate (Sum Assured ₹50,000)",
+                    value=f"₹{rate}"
                 )
 
     except Exception as e:
