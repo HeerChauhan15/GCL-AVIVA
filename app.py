@@ -62,7 +62,7 @@ if st.button("Get Rates"):
 
 st.header("📂 Upload Member Data for Bulk Rate Lookup")
 st.markdown("Your Excel must have at least: **Name, Age, Tenure (in Years)**.")
-st.markdown("⚠️ Please make sure you have entered Tenure in **years** (matching the rate card).")
+
 
 uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
