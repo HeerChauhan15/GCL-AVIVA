@@ -20,9 +20,10 @@ st.title("📊 Aviva GCL Insurance Premium Calculator")
 RATE_FILE = "Homeloan.xlsx"   # your actual file name
 
 # ============================================
-# SHEET DROPDOWN (auto-detect)
+# LIFE TYPE & LOAN TYPE DROPDOWNS
 # ============================================
 
+life_type = st.selectbox("Select Life Type", ["Single Life", "Joint Life"])
 try:
     sheet_names = pd.ExcelFile(RATE_FILE).sheet_names
     loan_type = st.selectbox("Select Loan Type (Sheet)", sheet_names)
@@ -66,7 +67,8 @@ if st.button("Get Rates"):
 # ============================================
 
 st.header("📂 Upload Member Data for Bulk Rate Lookup")
-st.markdown("Upload an Excel file with columns: **Name, Age, Insure Amount**")
+st.markdown("Your Excel must have at least: **Name, Age, Tenure** (tenure in months will be auto‑converted to years).")
+st.markdown("⚠️ Please make sure you have selected **Life Type** and **Loan Type** above before uploading your Excel file.")
 
 uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
@@ -83,27 +85,25 @@ if uploaded_file is not None:
         for _, row in df_members.iterrows():
             member_name = row["Name"]
             member_age = int(row["Age"])
-            insure_amount = row["Insure Amount"]
+            tenure_months = int(row["Tenure"])
+            tenure_years = tenure_months // 12  # auto convert months → years
 
             if member_age in df_rates[age_column].values:
                 rate_row = df_rates[df_rates[age_column] == member_age]
-                tenure_column = df_rates.columns[1]  # default: first tenure column
-                rate = round(rate_row.iloc[0][tenure_column], 4)
-                premium = round(rate * insure_amount / 50000, 2)
-                results.append([member_name, member_age, insure_amount, rate, premium])
-            else:
-                results.append([member_name, member_age, insure_amount, "N/A", "N/A"])
+                tenure_column = next((col for col in df_rates.columns if str(tenure_years) in str(col)), None)
 
-        df_results = pd.DataFrame(results, columns=["Name", "Age", "Insure Amount", "Rate", "Premium"])
+                if tenure_column:
+                    rate = round(rate_row.iloc[0][tenure_column], 4)
+                    premium = round(rate * (row.get("Insure Amount", 50000)) / 50000, 2)
+                    results.append([member_name, member_age, tenure_years, rate, premium])
+                else:
+                    results.append([member_name, member_age, tenure_years, "N/A", "N/A"])
+            else:
+                results.append([member_name, member_age, tenure_years, "N/A", "N/A"])
+
+        df_results = pd.DataFrame(results, columns=["Name", "Age", "Tenure (Years)", "Rate", "Premium"])
         st.success("Bulk Rates Calculated Successfully")
         st.dataframe(df_results)
 
     except Exception as e:
         st.error(f"Error: {e}")
-
-
-
-
-
-
-
