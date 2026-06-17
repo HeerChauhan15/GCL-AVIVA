@@ -88,14 +88,14 @@ if uploaded_file is not None:
                 if tenure_column:
                     rate = round(rate_row.iloc[0][tenure_column], 4)
                     premium = round(rate * (row.get("Insure Amount", 50000)) / 50000, 2)
-                    results.append([member_name, member_age, tenure_years, rate, premium])
+                    results.append([member_name, member_age, tenure_years, premium])
                 else:
-                    results.append([member_name, member_age, tenure_years, "N/A", "N/A"])
+                    results.append([member_name, member_age, tenure_years, "N/A"])
             else:
-                results.append([member_name, member_age, tenure_years, "N/A", "N/A"])
+                results.append([member_name, member_age, tenure_years, "N/A"])
 
-        df_results = pd.DataFrame(results, columns=["Name", "Age", "Tenure (Years)", "Rate", "Premium"])
-        st.success("Bulk Rates Calculated Successfully")
+        df_results = pd.DataFrame(results, columns=["Name", "Age", "Tenure (Years)", "Premium"])
+        st.success("Bulk Premiums Calculated Successfully")
         st.dataframe(df_results)
 
     except Exception as e:
